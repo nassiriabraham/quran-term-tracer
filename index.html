@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>Quran Term Tracer</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d5a45">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Term Tracer">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style id="lockStyle">
 @font-face { font-family: "Amiri"; src: url(fonts/amiri-700-latin.woff2) format("woff2"); font-weight: 700; }
 @font-face { font-family: "Amiri Quran"; src: url(fonts/amiri-quran-arabic.woff2) format("woff2"); }
@@ -42,6 +50,10 @@ body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 sy
 <script>
 (function () {
   "use strict";
+  // offline helper: lets the installed app open without internet (audio still needs a connection)
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    navigator.serviceWorker.register("sw.js").catch(function () { /* the site still works without it */ });
+  }
   var KEY_STORE = "qtt.unlockKey";
   var $ = function (id) { return document.getElementById(id); };
   function say(t, ok) { $("msg").textContent = t; $("msg").className = "msg" + (ok ? " ok" : ""); }
