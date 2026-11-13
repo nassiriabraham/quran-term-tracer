@@ -2,7 +2,7 @@
    Keeps a copy of the (encrypted) site so the installed app opens without internet.
    Always tries the network first, so updates arrive as soon as you are online.
    Recitation audio comes from other sites and is never cached here. */
-var CACHE = "qtt-v1";
+var CACHE = "qtt-v2";
 var FILES = [
   "./", "index.html", "payload.bin", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png",
@@ -18,9 +18,12 @@ self.addEventListener("activate", function (e) {
     return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
+// Only the tracer's own files; other apps in this site (such as notes/) are left alone.
+var SCOPE = self.registration.scope;
+var OWN = new Set(FILES.map(function (f) { return new URL(f, SCOPE).href; }));
 self.addEventListener("fetch", function (e) {
-  var req = e.request;
-  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return; // audio etc. go straight to the network
+  var req = e.request, url = new URL(req.url);
+  if (req.method !== "GET" || !OWN.has(url.origin + url.pathname)) return; // audio, other apps etc. go straight to the network
   e.respondWith(
     fetch(req).then(function (res) {
       if (res.ok) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
