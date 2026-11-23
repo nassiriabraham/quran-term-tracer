@@ -1,3 +1,3 @@
-# Private
+# Moved
 
-This site is password protected. Its contents are encrypted.
+This app is now **Quranic Hyperlinks** at https://quranic-hyperlinks.github.io/

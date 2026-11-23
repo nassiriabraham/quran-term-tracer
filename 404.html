@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Moved: Quranic Hyperlinks</title>
+<style>
+:root { --paper: #f3fbfa; --sheet: #ffffff; --ink: #171f44; --muted: #5a6286; --rule: #d9e2ee; --cta: #fe81d1; }
+@media (prefers-color-scheme: dark) { :root { --paper: #10163a; --sheet: #171f44; --ink: #eaf4ff; --muted: #a9b1d6; --rule: #2c3766; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; display: grid; place-items: center;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.box { width: min(440px, 100%); background: var(--sheet); border: 1px solid var(--rule); border-radius: 12px; padding: 24px; display: grid; gap: 12px; }
+h1 { margin: 0; font: 700 24px/1.2 Georgia, serif; }
+p { margin: 0; color: var(--muted); }
+a.go, button { font: inherit; font-weight: 600; text-align: center; text-decoration: none; padding: 11px; border-radius: 8px; border: 0; cursor: pointer; }
+a.go { background: var(--cta); color: #171f44; }
+button { background: transparent; color: var(--ink); border: 1.5px solid var(--rule); }
+#rescue[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>The app has moved</h1>
+  <p>Quran Term Tracer is now <b>Quranic Hyperlinks</b>, at a new address:</p>
+  <a class="go" id="go" href="https://quranic-hyperlinks.github.io/">Open quranic-hyperlinks.github.io</a>
+  <div id="rescue" hidden>
+    <p><b>This device still has notes from the old address.</b> Download them first, then use <b>Notebook → Restore</b> at the new address (or connect <b>Sync</b> there, if this device was synced).</p>
+    <button type="button" id="dl">Download my notebook backup</button>
+  </div>
+  <p id="auto"></p>
+</div>
+<script>
+(function () {
+  var NEW = "https://quranic-hyperlinks.github.io/";
+  // the old offline helper must not keep showing the old app
+  if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }).catch(function () {});
+  if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches.delete(k); }); }).catch(function () {});
+  var entries = [], recent = [];
+  try { entries = JSON.parse(localStorage.getItem("qtt.notebook") || "[]"); recent = JSON.parse(localStorage.getItem("qtt.recent") || "[]"); } catch (e) {}
+  if (!Array.isArray(entries)) entries = [];
+  if (entries.length) {
+    document.getElementById("rescue").hidden = false;
+    document.getElementById("dl").addEventListener("click", function () {
+      var data = JSON.stringify({ app: "Quran Term Tracer", kind: "notebook", version: 1, exported: new Date().toISOString(), entries: entries }, null, 1);
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+      a.download = "quran-notebook-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+      document.body.appendChild(a); a.click(); a.remove();
+      this.textContent = "Downloaded. Now open the new address";
+    });
+  } else {
+    document.getElementById("auto").textContent = "Taking you there…";
+    setTimeout(function () { location.replace(NEW); }, 1200);
+  }
+})();
+</script>
+</body>
+</html>
